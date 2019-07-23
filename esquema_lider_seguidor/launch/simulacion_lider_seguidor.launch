@@ -1,0 +1,77 @@
+<launch>
+    <!--Elige el turtlebot3 que se va a simular-->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+    
+    <!--Argumentos del robot turtlebot3 líder-->
+    <arg name="first_tb3_name" default="tb3_0"/> <!--Le da un nombre al turtlebot3 líder-->
+    <arg name="first_tb3_x_pos" default="0.0"/> <!--Posición inicial en x del turtlebot3 líder-->
+    <arg name="first_tb3_y_pos" default="-0.5"/> <!--Posición inicial en y del turtlebot3 líder-->
+    <arg name="first_tb3_z_pos" default="0.0"/> <!--Posición inicial en z del turtlebot3 líder-->
+    <arg name="first_tb3_yaw" default="0.0"/> <!--Orientación inicial del turtlebot3 líder-->
+
+    <!--Argumentos del robot turtlebot3 seguidor-->
+    <arg name="second_tb3_name" default="tb3_1"/> <!--Le da un nombre al turtlebot3 seguidor-->
+    <arg name="second_tb3_x_pos" default="0.0"/> <!--Posición inicial en x del turtlebot3 seguidor-->
+    <arg name="second_tb3_y_pos" default="0.0"/> <!--Posición inicial en y del turtlebot3 seguidor-->
+    <arg name="second_tb3_z_pos" default="0.0"/> <!--Posición inicial en z del turtlebot3 seguidor-->
+    <arg name="second_tb3_yaw" default="0.0"/> <!--Orientación inicial del turtlebot3 seguidor-->
+
+    <!--Argumentos para el amcl-->
+    <arg name="update_min_d" default="0.020"/> <!-- Argumento de cada cuando se actualiza la distancia según su incremento-->
+    <arg name="update_min_a" default="0.020"/> <!-- Argumento de cada cuando se actualiza la orientación según su incremento-->
+
+    <!--Argumentos del mapa-->
+    <arg name="obstacles" default="0"/>  <!--Argumento para definir el número de obstáculos-->
+    <arg name="world_name" default="$(find esquema_lider_seguidor)/src/Mapa_de_simulacion/MundoSTT2_$(arg obstacles)Obs.world"/> <!--Incluye el archivo de entorno-->
+    
+    <!--Argumentos del mapa para rviz y amcl-->
+    <arg name="map_file" value="$(find esquema_lider_seguidor)/src/Mapa_amcl/mapaOrientado.yaml"/> <!--Mapa en 2d para realizar amcl-->
+    <arg name="open_rviz" default="false"/><!--Opción para abrir o no rviz-->
+    <arg name="map_rviz" default="$(find esquema_lider_seguidor)/src/Rviz/2_tb3.rviz"/> <!--Configuración de rviz para 2 turtlebot3-->
+    
+    <!-- Ejecuta launch para simular 2 turtlebot3 en gazebo -->
+    <include file="$(find esquema_lider_seguidor)/launch/gazebo_2_tb3.launch">
+        <arg name="model" value="$(arg model)"/>
+        <arg name="first_tb3_name" value="$(arg first_tb3_name)"/>
+        <arg name="second_tb3_name" value="$(arg second_tb3_name)"/>
+        <arg name="first_tb3_x_pos" value="$(arg first_tb3_x_pos)"/>
+        <arg name="first_tb3_y_pos" value="$(arg first_tb3_y_pos)"/>
+        <arg name="first_tb3_z_pos" value="$(arg first_tb3_z_pos)"/>
+        <arg name="first_tb3_yaw" value="$(arg first_tb3_yaw)"/>
+        <arg name="second_tb3_x_pos" value="$(arg second_tb3_x_pos)"/>
+        <arg name="second_tb3_y_pos" value="$(arg second_tb3_y_pos)"/>
+        <arg name="second_tb3_z_pos" value="$(arg second_tb3_z_pos)"/>
+        <arg name="second_tb3_yaw" value="$(arg second_tb3_yaw)"/>
+        <arg name="obstacles" value="0"/>
+        <arg name="world_name" value="$(arg world_name)"/>
+    </include>
+    
+    <!--Ejecutar Map server para hacer AMCL-->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/> <!--Incluye el archivo del mapa en 2d-->
+    
+    <!--AMCL para el robot líder -->
+    <include file="$(find esquema_lider_seguidor)/launch/amcl_tb3.launch">
+        <arg name="nombre" value="$(arg first_tb3_name)"/>
+        <arg name="initial_pose_x" value="$(arg first_tb3_x_pos)"/>
+        <arg name="initial_pose_y" value="$(arg first_tb3_y_pos)"/>
+        <arg name="initial_pose_a" value="$(arg first_tb3_yaw)"/>
+        <arg name="update_min_d" value="$(arg update_min_d)"/>
+        <arg name="update_min_a" value="$(arg update_min_a)"/>
+    </include>
+    
+    <!--AMCL para el robot seguidor -->
+    <include file="$(find esquema_lider_seguidor)/launch/amcl_tb3.launch">
+        <arg name="nombre" value="$(arg second_tb3_name)"/>
+        <arg name="initial_pose_x" value="$(arg second_tb3_x_pos)"/>
+        <arg name="initial_pose_y" value="$(arg second_tb3_y_pos)"/>
+        <arg name="initial_pose_a" value="$(arg second_tb3_yaw)"/>
+        <arg name="update_min_d" value="$(arg update_min_d)"/>
+        <arg name="update_min_a" value="$(arg update_min_a)"/>
+    </include>
+    
+    <!--Ejecuta rviz -->
+    <group if="$(arg open_rviz)">
+        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(arg map_rviz)"/>
+    </group>
+
+</launch>

@@ -1,5 +1,5 @@
 <launch>
-  <!-- Argumentos -->
+  <!-- Argumentos para ejecutar amcl-->
   <arg name="nombre" default="tb3"/> <!-- Argumento nombre para distinguir al robot-->
   <arg name="scan_topic"     default="scan"/> <!-- Argumento del tópico scan -->
   <arg name="initial_pose_x" default="-0.5"/> <!-- Argumento de posición inicial en x-->

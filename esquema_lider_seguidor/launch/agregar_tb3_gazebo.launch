@@ -1,0 +1,22 @@
+<launch>
+  <!--Elige el turtlebot3 que se va a simular-->
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <!--Argumentos del robot turtlebot3-->
+  <arg name="tb3" default="tb3_0"/> <!--Le da un nombre al turtlebot3-->
+  <arg name="tb3_x_pos" default="-0.25"/> <!--Posición inicial en x-->
+  <arg name="tb3_y_pos" default="0.0"/> <!--Posición inicial en y-->
+  <arg name="tb3_z_pos" default="0.0"/> <!--Posición inicial en z-->
+  <arg name="tb3_yaw" default="1.57"/> <!--Orientación inicial-->
+
+  <!--Agregar tb3-->
+  <group ns = "$(arg tb3)"> <!--Crea un prefijo que identifica al turtlebot3-->
+    <!--Ejecuta los nodos para simular un tb3 en gazebo-->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+      <param name="publish_frequency" type="double" value="50.0" />
+      <param name="tf_prefix" value="$(arg tb3)" />
+    </node>
+    <!--Configurar posición y orientación-->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg tb3) -x $(arg tb3_x_pos) -y $(arg tb3_y_pos) -z $(arg tb3_z_pos) -Y $(arg tb3_yaw) -param robot_description" />
+  </group> 
+</launch>

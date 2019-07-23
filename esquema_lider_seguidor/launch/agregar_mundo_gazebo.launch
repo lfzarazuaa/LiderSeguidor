@@ -1,0 +1,14 @@
+<launch>
+  <arg name="obstacles" default="0"/> <!--Argumento para definir el número de obstáculos-->
+  <arg name="world_name" default="$(find esquema_lider_seguidor)/src/Mapa_de_simulacion/MundoSTT2_$(arg obstacles)Obs.world"/> <!--Incluye el archivo de entorno-->
+
+  <!--Ejecuta archivo launch para simular el entorno creado-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"> 
+    <arg name="world_name" value="$(arg world_name)"/> <!--Localización del archivo del mundo-->
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+</launch>
