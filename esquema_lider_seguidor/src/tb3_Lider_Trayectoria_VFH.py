@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PoseStamped
 from turtlesim.msg import Pose
 from std_msgs.msg import Float64,Int32,Bool
+from esquema_lider_seguidor.msg import Histograma # Importa el mensaje histograma.
 
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 map_size_x = 250.0 # Medida del mapa en "x" en cm.
@@ -46,8 +47,12 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         self.Trayectorias = [] # Inicializa la lista donde se guardan las trayectorias.
         for i in range(1,self.numTrayectorias+1):# Carga las trayectorias solicitadas.
             self.Trayectorias.append(np.load(ruta+nombre+str(i)+extension))
+        #Se subscribe a distintos tópicos.
         self.pose_subscriber=rospy.Subscriber("/tb3_0/amcl_pose", PoseWithCovarianceStamped,self.poseCallback,queue_size=1)# Se subscribe a la posición del líder la cual se obtiene por amcl.
-        self.velocity_publisher=rospy.Publisher('/tb3_0/cmd_vel', Twist, queue_size=10)# Crea publicador de la velocidad que va a tener el robot.
+        self.histogram_subscriber=rospy.Subscriber("/tb3_0/histogram", Histograma,self.histogramCallback,queue_size=1) # Se subscribe al histograma que le sirve para esquivar obstáculos.
+        self.dist_min_subscriber=rospy.Subscriber("/tb3_0/dist_min", Float64,self.dist_minCallback,queue_size=1) # Se subscribe a la distancia mínima hacia obstáculo para saber si aplicar vfh.
+        #Publica el tópico de velocidad.
+        self.velocity_publisher=rospy.Publisher('/tb3_0/cmd_vel', Twist, queue_size=10) # Crea publicador de la velocidad que va a tener el robot.
         self.rate = rospy.Rate(10) # Hace la frecuencia de espera de 10Hz cuando se usa ros sleep().
         
     def poseCallback(self,data): # Obtiene la posición del robot.
@@ -60,6 +65,12 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         #print 'yaw=',self.lider_pose.theta*180/np.pi # Imprime la posición en pantalla.
         self.poseflag=True# Indica que ya se recibió la posición.
     
+    def histogramCallback(self,data): # Método que se ejecuta cuando se recibe un Histograma.
+        self.histogram=list(data.Histogram) # Guarda el histograma en una variable cuando es recibido
+
+    def dist_minCallback(self,data): # Método que se ejecuta cuando se recibe un Histograma.
+        self.dist_min=data.data # Guarda la distancia más cercana a un posible obstáculo.
+
     def laneCallback(self,data):# Guarda la opción de la trayectoria seleccionada
         self.lane=data.data
 
