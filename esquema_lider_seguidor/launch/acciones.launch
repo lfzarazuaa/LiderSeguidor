@@ -1,0 +1,25 @@
+<launch>
+  <arg name="open_follower" default="false"/>
+  <!--output="screen" launch-prefix="xterm -e"-->
+  <group>
+   <!--Nodo para calcular distancia minima-->
+   <node pkg="esquema_lider_seguidor" name="distancia_minima" type="tb3_distancia_laser.py" output="log"/>
+  
+   <!--Nodo para obtener Histograma polar de VFH-->
+   <node pkg="esquema_lider_seguidor" name="nodo_vfh" type="tb3_vfh.py" output="log"/>
+
+   <!--Nodo para graficar-->
+   <!--<node pkg="tutoriales_basicos" name="plotter" type="tb3_plotter4.py" output="log"/>-->
+
+   <!--Nodo para abrir gui-->
+   <node pkg="qgui" name="hmi" type="qgui" output="log"/>
+
+   <!--Nodo para mover al líder-->
+   <node pkg="esquema_lider_seguidor" name="lider" type="tb3_Lider_Trayectoria_VFH.py" output="screen"/>
+  
+   <!--Node para mover al seguidor-->
+   <group if="$(arg open_follower)">
+     <node pkg="tutoriales_basicos" name="seguidor" type="tb3_follower.py" output="screen" launch-prefix="xterm -e"/>
+   </group>
+  </group>
+</launch>

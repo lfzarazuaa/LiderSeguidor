@@ -28,7 +28,7 @@ class LaserVFH: # Clase para realizar el algoritmo vector field histogram.
         self.Ho = np.zeros(360,dtype='f') # Histograma de unos y ceros que indica la presencia de obstáculos.
         self.hp = np.zeros(360,dtype='f') # Derivada del histograma.
         plt.ion() # Activa el modo interactivo del plot.
-        self.plot=True # Bandera para graficar los histogramas.
+        self.plot=False # Bandera para graficar los histogramas.
         
     def poseCallback(self,data): # Obtiene la posición del robot.
         self.lider_pose.x = data.pose.pose.position.x # Posición en "x" del robot.

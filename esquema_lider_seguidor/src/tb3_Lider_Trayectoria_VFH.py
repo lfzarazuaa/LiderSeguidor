@@ -38,6 +38,8 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         nombre = 'MatrizDeFuerza' # Nombre del archivo de salida que contiene la matriz de fuerza.
         extension = '.npy' # Extensión del archivo.
         self.poseflag = False # Bandera de dato de posición obtenido. 
+        self.histogramflag = False # Bandera de dato de histograma obtenido. 
+        self.dist_minflag = False # Bandera de dato de distancia mínima al obstáculo obtenido. 
         self.lider_pose = Pose() # Inicializa el objeto de posición del robot líder.
         self.vel_msg = Twist() # Crea objeto para poder publicar la velocidad.
         # Variables para evadir obstáculos.
@@ -69,9 +71,11 @@ class MovimientoLider: # Clase del movimiento del robot líder.
     
     def histogramCallback(self,data): # Método que se ejecuta cuando se recibe un Histograma.
         self.histogram=list(data.Histogram) # Guarda el histograma en una variable cuando es recibido
+        self.histogramflag=True # Indica que ya se recibió el histograma.
 
     def dist_minCallback(self,data): # Método que se ejecuta cuando se recibe un Histograma.
         self.dist_min=data.data # Guarda la distancia más cercana a un posible obstáculo.
+        self.dist_minflag=True # Indica que ya se recibió la distancia mínima.
 
     def laneCallback(self,data):# Guarda la opción de la trayectoria seleccionada
         self.lane=data.data
@@ -81,12 +85,19 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         if self.turn_on==False: # Si le indica parar. 
             self.setStop() # Para al robot.
 
+    def esperardatos(self): # Verifica que las dos condiciones se cumplan para poder seguir sin errores.
+        condicion=not(self.dist_minflag and self.histogramflag)
+        while condicion:
+            condicion=not(self.dist_minflag and self.histogramflag)
+
     def seguimientoSinGUI(self): # Sigue la tayectoria sin GUI
+        self.esperardatos() # Espera que se escriba en las variables de histograma y distancia mínima.
         for i in range(0,numero_de_iteraciones):# Simula cierta cantidad de puntos alcanzados antes que se pare el robot lider.
                 self.follow()# Llama a la función de seguir trayectoria.
                 #print i # Imprime cuantos puntos ha alcanzado.
     
     def seguimientoConGUI(self): # Sigue la trayectoria manipulada por la GUI.
+        self.esperardatos() # Espera que se escriba en las variables de histograma y distancia mínima.
         self.turn_on=False # Bandera que indica si avanza o se para.
         self.lane_subscriber = rospy.Subscriber("/lane",Int32,self.laneCallback,queue_size=1)# Crea el subscriptor de la Trayectoria escogida.
         self.turn_on_subscriber = rospy.Subscriber("/turn_on",Bool,self.turn_onCallback,queue_size=1)# Crea el subscriptor de avanzar o parar.
@@ -161,7 +172,7 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         
 def main(): # Función principal
         rospy.init_node('MovimientoLider', anonymous=True) # Inicia el nodo MovimientoLider.
-        gui = len(sys.argv)>1 # Decide si usar gui o no sin ningun argumento es con GUI.
+        gui = len(sys.argv)>3 # Decide si usar gui o no sin ningun argumento es con GUI.
         Lider = MovimientoLider() # Constructor de la clase donde se inicializan subscriptores y publicadores.
         print 'Nodo inicializado' # Se imprime para verificar que el nodo ya se inicializó.
         if gui:
