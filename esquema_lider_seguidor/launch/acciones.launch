@@ -12,7 +12,7 @@
    <!--<node pkg="tutoriales_basicos" name="plotter" type="tb3_plotter4.py" output="log"/>-->
 
    <!--Nodo para abrir gui-->
-   <node pkg="qgui" name="hmi" type="qgui" output="log"/>
+   <node pkg="gui_lider_seguidor" name="interfaz_grafica" type="gui_lider_seguidor" output="log"/>
 
    <!--Nodo para mover al líder-->
    <node pkg="esquema_lider_seguidor" name="lider" type="tb3_Lider_Trayectoria_VFH.py" output="screen"/>
