@@ -8,18 +8,17 @@
    <!--Nodo para obtener Histograma polar de VFH-->
    <node pkg="esquema_lider_seguidor" name="nodo_vfh" type="tb3_vfh.py" output="log"/>
 
-   <!--Nodo para graficar-->
-   <!--<node pkg="tutoriales_basicos" name="plotter" type="tb3_plotter4.py" output="log"/>-->
-
    <!--Nodo para abrir gui-->
    <node pkg="gui_lider_seguidor" name="interfaz_grafica" type="gui_lider_seguidor" output="log"/>
 
    <!--Nodo para mover al líder-->
    <node pkg="esquema_lider_seguidor" name="lider" type="tb3_Lider_Trayectoria_VFH.py" output="log"/>
   
-   <!--Node para mover al seguidor-->
    <group if="$(arg open_follower)">
-     <node pkg="esquema_lider_seguidor" name="seguidor" type="tb3_Seguidor.py" output="screen"/>
+    <!--Node para mover al seguidor-->
+    <node pkg="esquema_lider_seguidor" name="seguidor" type="tb3_Seguidor.py" output="screen"/>
+    <!--Nodo para graficar-->
+    <node pkg="esquema_lider_seguidor" name="plotter" type="tb3_plotter.py" output="log"/>
    </group>
   </group>
 </launch>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*
+# encoding: utf-8
 import sys
 import rospy
 import numpy as np
@@ -18,12 +18,12 @@ p=20#Numero de puntos del arbol entre 2 posiciones consecutivas en la trayectori
 class Plotter:
     def __init__(self):
       self.poseflag=False
-      ruta=os.path.dirname(os.path.abspath(__file__))+'/Generacion _de_Trayectorias/'
-      PuntosA=np.array(np.load(ruta+'PuntosA1.npy'))
+      ruta=os.path.dirname(os.path.abspath(__file__))+'/Codigos_para_generacion_de_trayectorias/Archivos_de_Puntos_Ajustados/'
+      PuntosA=np.array(np.load(ruta+'PuntosAjustados1.npy'))
       self.ArbolA=self.Arbol(PuntosA,p)
-      PuntosB=np.array(np.load(ruta+'PuntosB1.npy'))
+      PuntosB=np.array(np.load(ruta+'PuntosAjustados2.npy'))
       self.ArbolB=self.Arbol(PuntosB,p)
-      PuntosC=np.array(np.load(ruta+'PuntosC1.npy'))
+      PuntosC=np.array(np.load(ruta+'PuntosAjustados3.npy'))
       self.ArbolC=self.Arbol(PuntosC,p)
       self.turtlebot3_pose_L=Pose()
       self.Positions_XL=[]
@@ -94,7 +94,7 @@ class Plotter:
             ef=np.array(self.Positions_EF)
             matrix=np.array([po,xl,yl,el,xf,yf,ef]).T
             ruta=os.path.dirname(os.path.abspath(__file__))
-            nombre_Archivo='/Datos_Guardados/Grafica_'+time.strftime("%Y_%m_%d_%H_%M_%S")
+            nombre_Archivo='/Datos_de puntos_alcanzados/Grafica_'+time.strftime("%Y_%m_%d_%H_%M_%S")
             nombre_ArchivoP= nombre_Archivo+'.npy'
             nombre_ArchivoE= nombre_Archivo+'.xlsx'
             np.save(ruta+nombre_ArchivoP, matrix)
