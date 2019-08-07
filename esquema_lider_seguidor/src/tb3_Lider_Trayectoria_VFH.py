@@ -90,13 +90,13 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         while condicion:
             condicion=not(self.dist_minflag and self.histogramflag)
 
-    def seguimientoSinGUI(self): # Sigue la tayectoria sin GUI
+    def seguimientoSinGUI(self): # Método para seguir la tayectoria sin GUI
         self.esperardatos() # Espera que se escriba en las variables de histograma y distancia mínima.
         for i in range(0,numero_de_iteraciones):# Simula cierta cantidad de puntos alcanzados antes que se pare el robot lider.
                 self.follow()# Llama a la función de seguir trayectoria.
                 #print i # Imprime cuantos puntos ha alcanzado.
     
-    def seguimientoConGUI(self): # Sigue la trayectoria manipulada por la GUI.
+    def seguimientoConGUI(self): # Método para seguir la trayectoria manipulada por la GUI.
         self.esperardatos() # Espera que se escriba en las variables de histograma y distancia mínima.
         self.turn_on=False # Bandera que indica si avanza o se para.
         self.lane_subscriber = rospy.Subscriber("/lane",Int32,self.laneCallback,queue_size=1)# Crea el subscriptor de la Trayectoria escogida.
@@ -107,10 +107,10 @@ class MovimientoLider: # Clase del movimiento del robot líder.
             else:
                 self.setStop() # Hace que el robot se pare.                 
 
-    def convert2pi(self,theta):# Convierte a un rango de 0 a 2pi.
-        if theta<0:# Si el ángulo es negativo lo convierte a más de pi.
+    def convert2pi(self,theta):# Método que convierte a un rango de 0 a 2pi.
+        if theta<0: # Si el ángulo es negativo lo convierte a más de pi.
             theta=2*np.pi+theta
-        else:# Deja el ángulo igual.
+        else: # Deja el ángulo igual.
             theta=theta
         return theta # Regresa el ángulo ya convertido.
 

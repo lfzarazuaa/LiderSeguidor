@@ -74,4 +74,9 @@
         <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(arg map_rviz)"/>
     </group>
 
+     <!--Agrega las acciones para seguir trayectoria y evadir obstaculos con uso de una gui-->
+    <include file="$(find esquema_lider_seguidor)/launch/acciones.launch">
+        <arg name="open_follower" value="true"/>
+    </include>
+
 </launch>

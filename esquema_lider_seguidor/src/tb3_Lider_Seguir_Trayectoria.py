@@ -19,10 +19,10 @@ numero_de_trayectoria = 1 # Número de trayectoria seleccionda.
 numero_de_iteraciones = 1000 # Número de iteraciones a realizar de seguimiento si no se usa GUI
 
 class MovimientoLider: # Clase del movimiento del robot líder.
-    def __init__(self):# Constructor de la clase o inicialización.
-        self.inicializacion()# Inicia la función con los primeros parámetros.
-        while self.poseflag==False:# Se mantiene parado mientras no haya recibido la primera posición del robot.
-            self.setStop()# Coloca la velocidad del robot en 0.
+    def __init__(self): # Constructor de la clase o inicialización.
+        self.inicializacion() # Inicia la función con los primeros parámetros.
+        while self.poseflag==False: # Se mantiene parado mientras no haya recibido la primera posición del robot.
+            self.setStop() # Coloca la velocidad del robot en 0.
     
     def inicializacion(self):
         # Definir los valores del mapa como dimensiones y resolucón del mallado.
@@ -101,12 +101,12 @@ class MovimientoLider: # Clase del movimiento del robot líder.
         self.vel_msg.linear.x,self.vel_msg.angular.z=[0,0] # Establece las velocidades en 0.
         self.velocity_publisher.publish(self.vel_msg) # Publica la velocidad.
 
-    def move2angle(self,dist_y,dist_x):#Orienta la robot en el ángulo que indican las distancias de entrada al mismo tiempo que avanza.
-        self.rate = rospy.Rate(10)# Maximo de veces se repite por segundo la función.
-        ka=1.0# Constante para incrementar la velocidad de giro.
-        avel=self.convert2pi(np.arctan2(dist_y,dist_x))-self.lider_pose.theta# Calcula la diferencia angular entre las 2 posciones.
-        avel=(avel+np.pi)%(2*np.pi)-np.pi# Orienta la velocidad en el sentido de giro mas corto.
-        if abs(avel)>45*np.pi/180:# Si el giro es mayor a 45 grados hace que la velocidad lineal sea 0,
+    def move2angle(self,dist_y,dist_x): # Orienta la robot en el ángulo que indican las distancias de entrada al mismo tiempo que avanza.
+        self.rate = rospy.Rate(10) # Maximo de veces se repite por segundo la función.
+        ka=1.0 # Constante para incrementar la velocidad de giro.
+        avel=self.convert2pi(np.arctan2(dist_y,dist_x))-self.lider_pose.theta # Calcula la diferencia angular entre las 2 posciones.
+        avel=(avel+np.pi)%(2*np.pi)-np.pi # Orienta la velocidad en el sentido de giro mas corto.
+        if abs(avel)>45*np.pi/180: # Si el giro es mayor a 45 grados hace que la velocidad lineal sea 0,
             lvel=0.0 # para evitar desviaciones largas provocadas por la velocidad lineal y pueda asi seguir mejor la trayectoria.
         else:
             lvel=self.lineal# Conserva la velocidad lineal constante.
