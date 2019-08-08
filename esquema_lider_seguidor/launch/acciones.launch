@@ -1,5 +1,5 @@
 <launch>
-  <arg name="open_follower" default="false"/>
+  <arg name="open_follower" default="true"/>
   <!--output="screen" launch-prefix="xterm -e"-->
   <group>
    <!--Nodo para calcular distancia minima-->
@@ -14,11 +14,11 @@
    <!--Nodo para mover al líder-->
    <node pkg="esquema_lider_seguidor" name="lider" type="tb3_Lider_Trayectoria_VFH.py" output="log"/>
   
-   <group if="$(arg open_follower)">
-    <!--Node para mover al seguidor-->
-    <node pkg="esquema_lider_seguidor" name="seguidor" type="tb3_Seguidor.py" output="screen"/>
-    <!--Nodo para graficar-->
-    <node pkg="esquema_lider_seguidor" name="plotter" type="tb3_plotter.py" output="log"/>
+    <group if="$(arg open_follower)">
+     <!--Nodo para mover al seguidor-->
+     <node pkg="esquema_lider_seguidor" name="seguidor" type="tb3_Seguidor.py" output="log"/>
+     <!--Nodo para graficar-->
+     <node pkg="esquema_lider_seguidor" name="plotter" type="tb3_plotter.py" output="screen"/>
    </group>
   </group>
 </launch>

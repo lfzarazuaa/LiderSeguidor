@@ -1,47 +1,47 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import sys
-import rospy
-import numpy as np
-import os
-import time
-import matplotlib.pyplot as plt
-import pandas as pd
+import sys # Importar libería para recibir variables del sistema o consola.
+import rospy # Importar libería de ROS para python.
+import numpy as np # Importar libería matemática.
+import os # Importar librería para leer carpetas.
+import time # Importar libería para obtener el tiempo apartir del sistema.
+import matplotlib.pyplot as plt # Importar líbreria para gráficar.
+import pandas as pd # Importa librería para manipular archivos de excel.
+from scipy.spatial import KDTree # Importa librería para generar árboles KD.
+from tf.transformations import euler_from_quaternion, quaternion_from_euler # Importa librería para hacer transformaciones en la orientación.
+# Importa mensajes de ROS
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from turtlesim.msg import Pose
-from scipy.spatial import KDTree
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from std_msgs.msg import Float64,Int32,Bool
-m=2#Plotter
-n=1#Plotter
-p=20#Numero de puntos del arbol entre 2 posiciones consecutivas en la trayectoria 
-class Plotter:
-    def __init__(self):
-      self.poseflag=False
-      ruta=os.path.dirname(os.path.abspath(__file__))+'/Codigos_para_generacion_de_trayectorias/Archivos_de_Puntos_Ajustados/'
-      PuntosA=np.array(np.load(ruta+'PuntosAjustados1.npy'))
-      self.ArbolA=self.Arbol(PuntosA,p)
-      PuntosB=np.array(np.load(ruta+'PuntosAjustados2.npy'))
-      self.ArbolB=self.Arbol(PuntosB,p)
-      PuntosC=np.array(np.load(ruta+'PuntosAjustados3.npy'))
-      self.ArbolC=self.Arbol(PuntosC,p)
-      self.turtlebot3_pose_L=Pose()
-      self.Positions_XL=[]
-      self.Positions_YL=[]
-      self.Positions_EL=[]
-      self.turtlebot3_pose_F=Pose()
-      self.Positions_XF=[]
-      self.Positions_YF=[]
-      self.Positions_EF=[]
-      self.Positions_Count=[]
-      self.count=0
-      self.lane=0
-      self.graph=False
-      self.clear=False
-      self.save_data=False
-      self.language=False
-      #self.fig = plt.figure(figsize=(7,7), facecolor='w')
-      #self.fig.canvas.set_window_title('Trayectorias generadas')
+
+num_trayectorias=3 # Define cuantas trayectorias puede seguir.
+m=2 # Número de filas en el graficador.
+n=1 # Número de columnas en el graficador.
+p=20 # Número de puntos del árbol entre 2 posiciones consecutivas en la trayectoria.
+
+class Plotter: # Clase para graficar los puntos alcanzados.
+    def __init__(self): # Define el constructor de la clase.
+      self.poseflag = False # Define bandera de posición en falso.
+      ruta = os.path.dirname(os.path.abspath(__file__))+'/Codigos_para_generacion_de_trayectorias/Archivos_de_Puntos_Ajustados/' # Ruta para guardar los datos obtenidos.
+      self.Arboles = [] # Define lista donde se guardaran los árboles KD de cada trayectoria.
+      for i in range(num_trayectorias): # Ciclo para guardar los distintos árboles KD.
+        self.Arboles.append(self.Arbol(np.array(np.load(ruta+'PuntosAjustados'+str(i+1)+'.npy')),p)) # Guarda el árbol KD correspondiente.
+      self.turtlebot3_pose_L = Pose() # Crea objeto para almacenar la posición del líder.
+      self.Positions_XL=[] # Crea objeto para almacenar la posiciónes en "x" del líder.
+      self.Positions_YL=[] # Crea objeto para almacenar la posiciónes en "y" del líder.
+      self.Positions_EL=[] # Crea objeto para almacenar el error de distancia del líder.
+      self.turtlebot3_pose_F = Pose() # Crea objeto para almacenar la posición del líder.
+      self.Positions_XF=[] # Crea objeto para almacenar la posiciónes en "x" del seguidor.
+      self.Positions_YF=[] # Crea objeto para almacenar la posiciónes en "y" del seguidor.
+      self.Positions_EF=[] # Crea objeto para almacenar el error de distancia del seguidor.
+      self.Positions_Count=[] # Crea objeto para almacenar cuantos puntos alcanzados se tienen.
+      self.count=0 # Declara el contador de puntos alcanzados en cero.
+      self.lane=0 # Declara sin trayectoria seleccionada.
+      self.graph=False # Declara la bandera de graficar en falso.
+      self.clear=False # Declara la bandera de limpiar gráfica en falso.
+      self.save_data=False # Declara la bandera de guardar datos en falso.
+      self.language=False # Declara el idioma en español.
+      # Declara los distintos subscriptores.
       self.lane_subscriber=rospy.Subscriber("/lane",Int32,self.laneCallback,queue_size=1)
       self.posel_subscriber=rospy.Subscriber("/tb3_0/amcl_pose", PoseWithCovarianceStamped,self.poseCallback,queue_size=1)
       self.posef_subscriber=rospy.Subscriber("/tb3_1/amcl_pose", PoseWithCovarianceStamped,self.poseCallback2,queue_size=1)
@@ -49,7 +49,7 @@ class Plotter:
       self.clear_graph_subscriber=rospy.Subscriber("/clear_graph",Bool,self.clear_graph_Callback,queue_size=1)
       self.save_data_subscriber=rospy.Subscriber("/save_data",Bool,self.save_data_Callback,queue_size=1)
       self.change_language_subscriber=rospy.Subscriber("/change_language",Bool,self.change_language_Callback,queue_size=1)
-      plt.ion()
+      plt.ion() # Activa modo interactivo.
 
     def poseCallback(self,data):
         self.turtlebot3_pose_L.x=data.pose.pose.position.x
@@ -153,21 +153,10 @@ class Plotter:
                 self.Positions_YF.append(self.turtlebot3_pose_F.y)
                 plt.subplot(m,n,2)
                 plt.hold(True)
-                if self.lane==1:
-                    #Error Lider
-                    distL, index = self.ArbolA.query((self.turtlebot3_pose_L.x,self.turtlebot3_pose_L.y))
-                    #Error Seguidor
-                    distF, index = self.ArbolA.query((self.turtlebot3_pose_F.x,self.turtlebot3_pose_F.y))
-                elif self.lane==2:
-                    #Error Lider
-                    distL, index = self.ArbolB.query((self.turtlebot3_pose_L.x,self.turtlebot3_pose_L.y))
-                    #Error Seguidor
-                    distF, index = self.ArbolB.query((self.turtlebot3_pose_F.x,self.turtlebot3_pose_F.y))
-                else:
-                    #Error Lider
-                    distL, index = self.ArbolC.query((self.turtlebot3_pose_L.x,self.turtlebot3_pose_L.y))
-                    #Error Seguidor
-                    distF, index = self.ArbolC.query((self.turtlebot3_pose_F.x,self.turtlebot3_pose_F.y))
+                #Error Lider
+                distL, index = self.Arboles[self.lane-1].query((self.turtlebot3_pose_L.x,self.turtlebot3_pose_L.y))
+                #Error Seguidor
+                distF, index = self.Arboles[self.lane-1].query((self.turtlebot3_pose_F.x,self.turtlebot3_pose_F.y))
                 self.Positions_EL.append(distL)
                 self.Positions_EF.append(distF)
                 self.Positions_Count.append(self.count)
@@ -213,12 +202,12 @@ class Plotter:
         xy=np.array([x1,y1]).T
         return KDTree(xy)           
 
-def main():
-        rospy.init_node('Plotter', anonymous=True)
-        P=Plotter() # constructor creates publishers / subscribers
-        print 'PLotter inicializado'
+def main(): # Función principal
+        rospy.init_node('Plotter', anonymous=True) # Inicia el nodo del graficador.
+        P=Plotter() # Constructor de la clase Plotter.
+        print 'PLotter inicializado' # Imprime mensaje de función principal inciada.
         while (not rospy.is_shutdown()):
-            P.plotear()
+            P.plotear() # Ir graficando los puntos.
         #rospy.spin()
         
 
